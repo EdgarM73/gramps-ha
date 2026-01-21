@@ -14,15 +14,21 @@ Diese Custom Integration ermöglicht es, Daten von einer Gramps Web Instanz in H
 
 ### HACS (empfohlen)
 
-1. Fügen Sie dieses Repository zu HACS als Custom Repository hinzu
-2. Suchen Sie nach "Gramps HA" in HACS
-3. Klicken Sie auf "Download"
-4. Starten Sie Home Assistant neu
+1. Öffnen Sie HACS in Home Assistant
+2. Klicken Sie auf die drei Punkte (⋮) oben rechts
+3. Wählen Sie **Benutzerdefinierte Repositorys**
+4. Fügen Sie die Repository-URL hinzu: `http://172.23.5.140:3000/erdal/gramps-ha-addon`
+5. Wählen Sie Kategorie: **Integration**
+6. Klicken Sie auf **Hinzufügen**
+7. Suchen Sie nach "Gramps HA" und installieren Sie es
+8. Starten Sie Home Assistant neu
 
 ### Manuelle Installation
 
-1. Kopieren Sie den Ordner `custom_components/gramps-ha` in Ihr `<config>/custom_components/` Verzeichnis
-2. Starten Sie Home Assistant neu
+1. Laden Sie die neueste Version von Gitea herunter
+2. Erstellen Sie einen Ordner `gramps-ha` in Ihrem `<config>/custom_components/` Verzeichnis
+3. Kopieren Sie alle `.py` Dateien, `manifest.json`, `strings.json` und den `translations` Ordner in diesen Ordner
+4. Starten Sie Home Assistant neu
 
 ## Konfiguration
 
@@ -161,7 +167,7 @@ Fügen Sie dies zu Ihrer `configuration.yaml` hinzu:
 logger:
   default: info
   logs:
-    custom_components.gramps-ha: debug
+    custom_components.gramps_ha: debug
 ```
 
 ## Entwicklung
