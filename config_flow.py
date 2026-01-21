@@ -17,45 +17,15 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_URL): cv.url,
+        vol.Required(CONF_URL): cv.string,
         vol.Optional(CONF_USERNAME): cv.string,
         vol.Optional(CONF_PASSWORD): cv.string,
     }
 )
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect."""
-    try:
-        from .grampsweb_api import GrampsWebAPI
-        
-        url = data.get(CONF_URL, "").rstrip("/")
-        if not url:
-            raise ValueError("URL is required")
-        
-        api = GrampsWebAPI(
-            url=url,
-            username=data.get(CONF_USERNAME),
-            password=data.get(CONF_PASSWORD),
-        )
-
-        # Test the connection
-        try:
-            result = await hass.async_add_executor_job(api.get_people)
-            _LOGGER.debug("Successfully connected to Gramps Web")
-        except Exception as conn_err:
-            _LOGGER.warning("Could not connect to Gramps Web: %s", conn_err)
-            # Don't fail on connection error, just log it
-            # The integration will retry on setup
-            
-        return {"title": "Gramps HA"}
-    except Exception as err:
-        _LOGGER.error("Validation failed: %s", err)
-        raise
-
-
-class GrampsWebConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Gramps Web."""
+class GrampsHAConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Gramps HA."""
 
     VERSION = 1
 
@@ -65,16 +35,20 @@ class GrampsWebConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         if user_input is not None:
             errors = {}
-            try:
-                info = await validate_input(self.hass, user_input)
-                return self.async_create_entry(title=info["title"], data=user_input)
-            except ValueError as err:
-                _LOGGER.error("Validation error: %s", err)
-                errors["base"] = "invalid_url"
-            except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected error: %s", err)
-                errors["base"] = "unknown"
-                
+            
+            # Validate URL format
+            url = user_input.get(CONF_URL, "").strip()
+            if not url:
+                errors[CONF_URL] = "required"
+            elif not url.startswith(("http://", "https://")):
+                errors[CONF_URL] = "invalid_url"
+            
+            if not errors:
+                return self.async_create_entry(
+                    title="Gramps HA",
+                    data=user_input
+                )
+            
             return self.async_show_form(
                 step_id="user",
                 data_schema=STEP_USER_DATA_SCHEMA,
