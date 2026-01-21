@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Gramps Web einrichten",
+        "title": "Gramps HA einrichten",
         "description": "Verbinden Sie sich mit Ihrer Gramps Web Instanz",
         "data": {
           "url": "URL",
@@ -12,7 +12,8 @@
       }
     },
     "error": {
-      "cannot_connect": "Verbindung fehlgeschlagen. Bitte überprüfen Sie die URL und Anmeldedaten.",
+      "cannot_connect": "Verbindung fehlgeschlagen",
+      "invalid_url": "Ungültige URL",
       "unknown": "Ein unbekannter Fehler ist aufgetreten"
     },
     "abort": {

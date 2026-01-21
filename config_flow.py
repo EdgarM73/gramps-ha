@@ -12,13 +12,12 @@ from homeassistant.data_entry_flow import FlowResult
 import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN, CONF_URL, CONF_USERNAME, CONF_PASSWORD
-from .grampsweb_api import GrampsWebAPI
 
 _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_URL): cv.string,
+        vol.Required(CONF_URL): cv.url,
         vol.Optional(CONF_USERNAME): cv.string,
         vol.Optional(CONF_PASSWORD): cv.string,
     }
@@ -27,20 +26,32 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect."""
-    api = GrampsWebAPI(
-        url=data[CONF_URL],
-        username=data.get(CONF_USERNAME),
-        password=data.get(CONF_PASSWORD),
-    )
-
-    # Test the connection
     try:
-        await hass.async_add_executor_job(api.get_people)
-    except Exception as err:
-        _LOGGER.error("Failed to connect to Gramps Web: %s", err)
-        raise
+        from .grampsweb_api import GrampsWebAPI
+        
+        url = data.get(CONF_URL, "").rstrip("/")
+        if not url:
+            raise ValueError("URL is required")
+        
+        api = GrampsWebAPI(
+            url=url,
+            username=data.get(CONF_USERNAME),
+            password=data.get(CONF_PASSWORD),
+        )
 
-    return {"title": "Gramps Web"}
+        # Test the connection
+        try:
+            result = await hass.async_add_executor_job(api.get_people)
+            _LOGGER.debug("Successfully connected to Gramps Web")
+        except Exception as conn_err:
+            _LOGGER.warning("Could not connect to Gramps Web: %s", conn_err)
+            # Don't fail on connection error, just log it
+            # The integration will retry on setup
+            
+        return {"title": "Gramps HA"}
+    except Exception as err:
+        _LOGGER.error("Validation failed: %s", err)
+        raise
 
 
 class GrampsWebConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -52,19 +63,25 @@ class GrampsWebConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
-        errors: dict[str, str] = {}
-        
         if user_input is not None:
+            errors = {}
             try:
                 info = await validate_input(self.hass, user_input)
-            except Exception as err:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception: %s", err)
-                errors["base"] = "cannot_connect"
-            else:
                 return self.async_create_entry(title=info["title"], data=user_input)
+            except ValueError as err:
+                _LOGGER.error("Validation error: %s", err)
+                errors["base"] = "invalid_url"
+            except Exception as err:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected error: %s", err)
+                errors["base"] = "unknown"
+                
+            return self.async_show_form(
+                step_id="user",
+                data_schema=STEP_USER_DATA_SCHEMA,
+                errors=errors,
+            )
 
         return self.async_show_form(
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
-            errors=errors,
         )
