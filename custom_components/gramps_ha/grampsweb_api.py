@@ -147,20 +147,45 @@ class GrampsWebAPI:
     def _extract_birth_date(self, person: dict):
         """Extract birth date from person data."""
         try:
-            # Try to get birth event reference
-            event_ref = person.get("event_ref_list", [])
-            for event in event_ref:
-                if event.get("role") == "Primary":
-                    # In real implementation, you'd need to fetch the event details
-                    # For now, check if birth data is in profile
-                    pass
+            # Check if person has a birth event
+            birth_ref_index = person.get("birth_ref_index", -1)
             
-            # Alternative: check profile data
-            profile = person.get("profile", {})
-            birth = profile.get("birth")
+            if birth_ref_index == -1:
+                # No birth event
+                return None
             
-            if birth:
-                return self._parse_gramps_date(birth)
+            # Get the birth event from event_ref_list
+            event_ref_list = person.get("event_ref_list", [])
+            
+            if birth_ref_index >= len(event_ref_list):
+                _LOGGER.debug("Birth ref index out of range: %s", birth_ref_index)
+                return None
+            
+            birth_event = event_ref_list[birth_ref_index]
+            
+            # Get the event handle to fetch full event details
+            event_handle = birth_event.get("ref")
+            if not event_handle:
+                _LOGGER.debug("No event handle found")
+                return None
+            
+            # Fetch the full event details
+            try:
+                event_data = self._get(f"events/{event_handle}")
+                date_info = event_data.get("date", {})
+                
+                # Parse the date from dateval
+                dateval = date_info.get("dateval", [])
+                if dateval and len(dateval) >= 3:
+                    day, month, year, _ = dateval
+                    if year > 0 and month > 0 and day > 0:
+                        birth_date = date(year, month, day)
+                        _LOGGER.debug("Parsed birth date: %s", birth_date)
+                        return birth_date
+                
+            except Exception as event_err:
+                _LOGGER.debug("Could not fetch event details: %s", event_err)
+                return None
             
             return None
             
@@ -171,35 +196,16 @@ class GrampsWebAPI:
     def _is_person_alive(self, person: dict) -> bool:
         """Check if person is still alive (no death date)."""
         try:
-            # Check multiple possible locations for death info
-            profile = person.get("profile", {})
+            # Check death_ref_index
+            death_ref_index = person.get("death_ref_index", -1)
             
-            # Check for death in profile
-            death = profile.get("death")
-            if death:
-                _LOGGER.debug("Found death in profile: %s", death)
-                death_date = self._parse_gramps_date(death)
-                if death_date and death_date <= date.today():
-                    return False
+            if death_ref_index == -1:
+                # No death event, person is alive
+                return True
             
-            # Check for death_date in profile (alternative field name)
-            death_date_field = profile.get("death_date")
-            if death_date_field:
-                _LOGGER.debug("Found death_date in profile: %s", death_date_field)
-                return False
-            
-            # Check for death in event_ref_list
-            event_refs = person.get("event_ref_list", [])
-            for event_ref in event_refs:
-                if event_ref.get("role") == "Death":
-                    _LOGGER.debug("Found death event reference")
-                    return False
-            
-            # Check for gramps_id that might indicate status
-            gramps_id = person.get("gramps_id", "")
-            
-            # No death info found, assume person is alive
-            return True
+            # Person has a death event, they are deceased
+            _LOGGER.debug("Person has death_ref_index: %s", death_ref_index)
+            return False
             
         except Exception as err:
             _LOGGER.debug("Could not determine if person is alive: %s", err)
@@ -221,10 +227,17 @@ class GrampsWebAPI:
     def _get_person_name(self, person: dict):
         """Get person's display name."""
         try:
-            profile = person.get("profile", {})
-            name_given = profile.get("name_given", "")
-            name_surname = profile.get("name_surname", "")
-            return f"{name_given} {name_surname}".strip()
+            primary_name = person.get("primary_name", {})
+            first_name = primary_name.get("first_name", "")
+            
+            # Get surname from surname_list
+            surname_list = primary_name.get("surname_list", [])
+            surname = ""
+            if surname_list:
+                surname = surname_list[0].get("surname", "")
+            
+            full_name = f"{first_name} {surname}".strip()
+            return full_name if full_name else "Unknown"
         except Exception:
             return "Unknown"
 
