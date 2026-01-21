@@ -1,7 +1,7 @@
 """Constants for the Gramps Web integration."""
 
-DOMAIN = "grampsweb"
-DEFAULT_NAME = "Gramps Web"
+DOMAIN = "gramps-ha"
+DEFAULT_NAME = "Gramps HA"
 
 CONF_URL = "url"
 CONF_USERNAME = "username"

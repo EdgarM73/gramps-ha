@@ -1,4 +1,4 @@
-# Gramps Web Integration für Home Assistant
+# Gramps HA Integration für Home Assistant
 
 Diese Custom Integration ermöglicht es, Daten von einer Gramps Web Instanz in Home Assistant zu integrieren und anstehende Geburtstage auf dem Dashboard anzuzeigen.
 
@@ -15,20 +15,20 @@ Diese Custom Integration ermöglicht es, Daten von einer Gramps Web Instanz in H
 ### HACS (empfohlen)
 
 1. Fügen Sie dieses Repository zu HACS als Custom Repository hinzu
-2. Suchen Sie nach "Gramps Web" in HACS
+2. Suchen Sie nach "Gramps HA" in HACS
 3. Klicken Sie auf "Download"
 4. Starten Sie Home Assistant neu
 
 ### Manuelle Installation
 
-1. Kopieren Sie den Ordner `custom_components/grampsweb` in Ihr `<config>/custom_components/` Verzeichnis
+1. Kopieren Sie den Ordner `custom_components/gramps-ha` in Ihr `<config>/custom_components/` Verzeichnis
 2. Starten Sie Home Assistant neu
 
 ## Konfiguration
 
 1. Gehen Sie zu **Einstellungen** → **Geräte & Dienste**
 2. Klicken Sie auf **+ Integration hinzufügen**
-3. Suchen Sie nach "Gramps Web"
+3. Suchen Sie nach "Gramps HA"
 4. Geben Sie die folgenden Informationen ein:
    - **URL**: Die URL Ihrer Gramps Web Instanz (z.B. `https://meine-gramps.example.com`)
    - **Benutzername**: (optional) Ihr Gramps Web Benutzername
@@ -161,7 +161,7 @@ Fügen Sie dies zu Ihrer `configuration.yaml` hinzu:
 logger:
   default: info
   logs:
-    custom_components.grampsweb: debug
+    custom_components.gramps-ha: debug
 ```
 
 ## Entwicklung

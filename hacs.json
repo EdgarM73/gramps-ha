@@ -1,7 +1,7 @@
 {
-  "name": "Gramps Web",
+  "name": "Gramps HA",
   "content_in_root": false,
-  "filename": "grampsweb",
+  "filename": "gramps-ha",
   "country": ["DE", "AT", "CH"],
   "render_readme": true,
   "homeassistant": "2023.1.0",
