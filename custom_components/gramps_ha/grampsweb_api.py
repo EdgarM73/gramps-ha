@@ -100,6 +100,11 @@ class GrampsWebAPI:
             current_year = today.year
             
             for person in people_data:
+                # Check if person is still alive
+                if not self._is_person_alive(person):
+                    _LOGGER.debug("Skipping deceased person: %s", self._get_person_name(person))
+                    continue
+                
                 # Get birth event
                 birth_date = self._extract_birth_date(person)
                 if not birth_date:
@@ -112,7 +117,7 @@ class GrampsWebAPI:
                 if next_birthday_info:
                     birthdays.append(next_birthday_info)
             
-            _LOGGER.info("Found %s birthdays", len(birthdays))
+            _LOGGER.info("Found %s birthdays from living people", len(birthdays))
             
             # Sort by days until birthday
             birthdays.sort(key=lambda x: x["days_until"])
@@ -146,6 +151,30 @@ class GrampsWebAPI:
         except Exception as err:
             _LOGGER.debug("Could not extract birth date: %s", err)
             return None
+
+    def _is_person_alive(self, person: dict) -> bool:
+        """Check if person is still alive (no death date)."""
+        try:
+            profile = person.get("profile", {})
+            
+            # Check if death date exists
+            death = profile.get("death")
+            if not death:
+                # No death date, person is alive
+                return True
+            
+            # If death date exists but is in the future (unlikely), person is alive
+            death_date = self._parse_gramps_date(death)
+            if death_date and death_date > date.today():
+                return True
+            
+            # Person has a death date in the past
+            return False
+            
+        except Exception as err:
+            _LOGGER.debug("Could not determine if person is alive: %s", err)
+            # If we can't determine, assume person is alive
+            return True
 
     def _parse_gramps_date(self, date_str: str):
         """Parse Gramps date format to Python date."""
