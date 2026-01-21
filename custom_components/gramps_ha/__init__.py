@@ -1,6 +1,7 @@
 """The Gramps HA integration."""
 import logging
 from datetime import timedelta
+from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -11,6 +12,31 @@ from .const import DOMAIN, CONF_URL, CONF_USERNAME, CONF_PASSWORD
 
 _LOGGER = logging.getLogger(__name__)
 
+# Setup file logging
+def setup_file_logging(hass: HomeAssistant):
+    """Setup file logging for Gramps HA."""
+    try:
+        log_file = Path(hass.config.path("gramps_ha.log"))
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(formatter)
+        
+        # Add handler to our logger and the API logger
+        logger = logging.getLogger(__name__)
+        logger.addHandler(file_handler)
+        logger.setLevel(logging.DEBUG)
+        
+        api_logger = logging.getLogger(f"{__name__}.grampsweb_api")
+        api_logger.addHandler(file_handler)
+        api_logger.setLevel(logging.DEBUG)
+        
+        _LOGGER.info("File logging setup complete: %s", log_file)
+    except Exception as err:
+        _LOGGER.error("Failed to setup file logging: %s", err)
+
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 SCAN_INTERVAL = timedelta(hours=6)
@@ -19,6 +45,9 @@ SCAN_INTERVAL = timedelta(hours=6)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Gramps HA from a config entry."""
     _LOGGER.info("Setting up Gramps HA integration")
+    
+    # Setup file logging
+    setup_file_logging(hass)
     
     try:
         from .grampsweb_api import GrampsWebAPI
