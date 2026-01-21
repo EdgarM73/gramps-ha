@@ -50,25 +50,50 @@ class GrampsWebAPI:
             self._authenticate()
         
         try:
+            url = f"{self.url}/api/{endpoint}"
+            _LOGGER.debug("GET request to: %s", url)
+            
             response = self._session.get(
-                f"{self.url}/api/{endpoint}",
+                url,
                 params=params,
+                timeout=30,
             )
             response.raise_for_status()
+            
+            _LOGGER.debug("Response status: %s", response.status_code)
             return response.json()
         except Exception as err:
-            _LOGGER.error("API request failed: %s", err)
+            _LOGGER.error("API request to %s failed: %s", endpoint, err, exc_info=True)
             raise
 
     def get_people(self):
         """Get all people from Gramps Web."""
-        return self._get("people/")
+        _LOGGER.debug("Fetching people from %s", self.url)
+        try:
+            result = self._get("people/")
+            _LOGGER.debug("API response type: %s", type(result))
+            return result
+        except Exception as err:
+            _LOGGER.error("Failed to get people: %s", err, exc_info=True)
+            raise
 
     def get_birthdays(self, limit: int = 50):
         """Get upcoming birthdays from Gramps Web."""
         try:
+            _LOGGER.info("Fetching birthdays from Gramps Web API")
+            
             # Get all people
-            people_data = self.get_people()
+            try:
+                people_data = self.get_people()
+                _LOGGER.info("Fetched %s people from Gramps Web", len(people_data) if isinstance(people_data, list) else "unknown")
+            except Exception as people_err:
+                _LOGGER.error("Failed to fetch people: %s", people_err, exc_info=True)
+                return []
+            
+            if not people_data:
+                _LOGGER.warning("No people data returned from Gramps Web")
+                return []
+            
             birthdays = []
             
             today = date.today()
@@ -87,14 +112,16 @@ class GrampsWebAPI:
                 if next_birthday_info:
                     birthdays.append(next_birthday_info)
             
+            _LOGGER.info("Found %s birthdays", len(birthdays))
+            
             # Sort by days until birthday
             birthdays.sort(key=lambda x: x["days_until"])
             
             return birthdays[:limit]
             
         except Exception as err:
-            _LOGGER.error("Failed to fetch birthdays: %s", err)
-            raise
+            _LOGGER.error("Failed to fetch birthdays: %s", err, exc_info=True)
+            return []
 
     def _extract_birth_date(self, person: dict):
         """Extract birth date from person data."""
