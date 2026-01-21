@@ -1,9 +1,6 @@
 {
   "name": "Gramps HA",
-  "content_in_root": false,
-  "filename": "gramps-ha",
-  "country": ["DE", "AT", "CH"],
+  "content_in_root": true,
   "render_readme": true,
-  "homeassistant": "2023.1.0",
-  "iot_class": "Cloud Polling"
+  "homeassistant": "2023.1.0"
 }
