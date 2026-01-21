@@ -104,7 +104,12 @@ class GrampsWebAPI:
             
             # Sample first person for debugging
             if people_data:
-                _LOGGER.debug("Sample person data: %s", people_data[0])
+                sample = people_data[0]
+                _LOGGER.debug("Sample person data: %s", sample)
+                _LOGGER.debug("Sample birth_ref_index: %s", sample.get("birth_ref_index"))
+                _LOGGER.debug("Sample event_ref_list length: %s", len(sample.get("event_ref_list", [])))
+                if sample.get("event_ref_list"):
+                    _LOGGER.debug("Sample first event: %s", sample.get("event_ref_list")[0])
             
             for person in people_data:
                 # Get birth event
@@ -147,50 +152,71 @@ class GrampsWebAPI:
     def _extract_birth_date(self, person: dict):
         """Extract birth date from person data."""
         try:
-            # Check if person has a birth event
+            # First check birth_ref_index
             birth_ref_index = person.get("birth_ref_index", -1)
-            
-            if birth_ref_index == -1:
-                # No birth event
-                return None
-            
-            # Get the birth event from event_ref_list
             event_ref_list = person.get("event_ref_list", [])
             
-            if birth_ref_index >= len(event_ref_list):
-                _LOGGER.debug("Birth ref index out of range: %s", birth_ref_index)
-                return None
-            
-            birth_event = event_ref_list[birth_ref_index]
-            
-            # Get the event handle to fetch full event details
-            event_handle = birth_event.get("ref")
-            if not event_handle:
-                _LOGGER.debug("No event handle found")
-                return None
-            
-            # Fetch the full event details
-            try:
-                event_data = self._get(f"events/{event_handle}")
-                date_info = event_data.get("date", {})
+            # If birth_ref_index is valid, use it
+            if birth_ref_index >= 0 and birth_ref_index < len(event_ref_list):
+                birth_event = event_ref_list[birth_ref_index]
+                event_handle = birth_event.get("ref")
                 
-                # Parse the date from dateval
-                dateval = date_info.get("dateval", [])
-                if dateval and len(dateval) >= 3:
-                    day, month, year, _ = dateval
-                    if year > 0 and month > 0 and day > 0:
-                        birth_date = date(year, month, day)
-                        _LOGGER.debug("Parsed birth date: %s", birth_date)
-                        return birth_date
-                
-            except Exception as event_err:
-                _LOGGER.debug("Could not fetch event details: %s", event_err)
-                return None
+                if event_handle:
+                    return self._fetch_event_date(event_handle)
+            
+            # Otherwise, search for Birth event in event_ref_list
+            for event_ref in event_ref_list:
+                # Check if this might be a birth event
+                event_handle = event_ref.get("ref")
+                if event_handle:
+                    try:
+                        event_data = self._get(f"events/{event_handle}")
+                        event_type = event_data.get("type", {})
+                        
+                        # Check if this is a birth event
+                        if isinstance(event_type, dict):
+                            type_string = event_type.get("string", "")
+                        else:
+                            type_string = str(event_type)
+                        
+                        if "birth" in type_string.lower():
+                            date_info = event_data.get("date", {})
+                            dateval = date_info.get("dateval", [])
+                            
+                            if dateval and len(dateval) >= 3:
+                                day, month, year, _ = dateval
+                                if year > 0 and month > 0 and day > 0:
+                                    birth_date = date(year, month, day)
+                                    _LOGGER.debug("Found birth date: %s", birth_date)
+                                    return birth_date
+                    except Exception as event_err:
+                        _LOGGER.debug("Could not fetch event %s: %s", event_handle, event_err)
+                        continue
             
             return None
             
         except Exception as err:
             _LOGGER.debug("Could not extract birth date: %s", err)
+            return None
+
+    def _fetch_event_date(self, event_handle: str):
+        """Fetch event date from event handle."""
+        try:
+            event_data = self._get(f"events/{event_handle}")
+            date_info = event_data.get("date", {})
+            
+            # Parse the date from dateval
+            dateval = date_info.get("dateval", [])
+            if dateval and len(dateval) >= 3:
+                day, month, year, _ = dateval
+                if year > 0 and month > 0 and day > 0:
+                    birth_date = date(year, month, day)
+                    _LOGGER.debug("Parsed birth date: %s", birth_date)
+                    return birth_date
+            
+            return None
+        except Exception as err:
+            _LOGGER.debug("Could not fetch event date: %s", err)
             return None
 
     def _is_person_alive(self, person: dict) -> bool:
