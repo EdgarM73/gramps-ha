@@ -95,28 +95,44 @@ class GrampsWebAPI:
                 return []
             
             birthdays = []
+            people_with_birth = 0
+            living_people = 0
+            deceased_people = 0
             
             today = date.today()
             current_year = today.year
             
+            # Sample first person for debugging
+            if people_data:
+                _LOGGER.debug("Sample person data: %s", people_data[0])
+            
             for person in people_data:
-                # Check if person is still alive
-                if not self._is_person_alive(person):
-                    _LOGGER.debug("Skipping deceased person: %s", self._get_person_name(person))
-                    continue
-                
                 # Get birth event
                 birth_date = self._extract_birth_date(person)
                 if not birth_date:
                     continue
                 
-                # Calculate next birthday
+                people_with_birth += 1
+                
+                # Check if person is still alive
+                is_alive = self._is_person_alive(person)
                 name = self._get_person_name(person)
+                
+                if is_alive:
+                    living_people += 1
+                else:
+                    deceased_people += 1
+                    _LOGGER.debug("Skipping deceased person: %s", name)
+                    continue
+                
+                # Calculate next birthday
                 next_birthday_info = self._calculate_next_birthday(birth_date, name)
                 
                 if next_birthday_info:
                     birthdays.append(next_birthday_info)
             
+            _LOGGER.info("Summary - Total with birth date: %s, Living: %s, Deceased: %s", 
+                        people_with_birth, living_people, deceased_people)
             _LOGGER.info("Found %s birthdays from living people", len(birthdays))
             
             # Sort by days until birthday
@@ -155,21 +171,35 @@ class GrampsWebAPI:
     def _is_person_alive(self, person: dict) -> bool:
         """Check if person is still alive (no death date)."""
         try:
+            # Check multiple possible locations for death info
             profile = person.get("profile", {})
             
-            # Check if death date exists
+            # Check for death in profile
             death = profile.get("death")
-            if not death:
-                # No death date, person is alive
-                return True
+            if death:
+                _LOGGER.debug("Found death in profile: %s", death)
+                death_date = self._parse_gramps_date(death)
+                if death_date and death_date <= date.today():
+                    return False
             
-            # If death date exists but is in the future (unlikely), person is alive
-            death_date = self._parse_gramps_date(death)
-            if death_date and death_date > date.today():
-                return True
+            # Check for death_date in profile (alternative field name)
+            death_date_field = profile.get("death_date")
+            if death_date_field:
+                _LOGGER.debug("Found death_date in profile: %s", death_date_field)
+                return False
             
-            # Person has a death date in the past
-            return False
+            # Check for death in event_ref_list
+            event_refs = person.get("event_ref_list", [])
+            for event_ref in event_refs:
+                if event_ref.get("role") == "Death":
+                    _LOGGER.debug("Found death event reference")
+                    return False
+            
+            # Check for gramps_id that might indicate status
+            gramps_id = person.get("gramps_id", "")
+            
+            # No death info found, assume person is alive
+            return True
             
         except Exception as err:
             _LOGGER.debug("Could not determine if person is alive: %s", err)
