@@ -33,7 +33,7 @@ async def async_setup_entry(
     
     sensors = [
         GrampsWebNextBirthdaySensor(coordinator, entry, i)
-        for i in range(5)  # Create 5 sensors for next 5 birthdays
+        for i in range(6)  # Create 6 sensors for next 6 birthdays
     ]
     
     sensors.append(GrampsWebAllBirthdaysSensor(coordinator, entry))
