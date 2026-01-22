@@ -70,6 +70,64 @@ class GrampsWebAPI:
             _LOGGER.error("API request to %s failed: %s", endpoint, err, exc_info=True)
             raise
 
+    def _resolve_event_handle(self, event_ref: dict) -> str | None:
+        """Resolve an event handle from different possible keys."""
+        if not event_ref:
+            return None
+
+        # Gramps may provide the event reference under different keys
+        handle = None
+        for key in ("ref", "handle", "hlink"):
+            candidate = event_ref.get(key)
+            if candidate:
+                handle = candidate
+                break
+
+        if not handle or not isinstance(handle, str):
+            return None
+
+        # If the handle looks like a URL/path, keep only the last segment
+        if "/" in handle:
+            handle = handle.rstrip("/").split("/")[-1]
+
+        return handle
+
+    def _parse_dateval(self, dateval):
+        """Convert Gramps dateval list into a Python date using safe heuristics."""
+        try:
+            if not isinstance(dateval, (list, tuple)):
+                return None
+
+            # We only need the first three entries for day/month/year
+            vals = list(dateval[:3])
+            if len(vals) < 3:
+                return None
+
+            # Ensure all are integers
+            try:
+                vals = [int(v) for v in vals]
+            except Exception:
+                return None
+
+            # Try combinations with a plausible year (>= 100)
+            combinations = [
+                (2, 1, 0),  # dateval = [day, month, year]
+                (0, 1, 2),  # dateval = [year, month, day]
+                (0, 2, 1),  # dateval = [year, day, month]
+            ]
+
+            for y_idx, m_idx, d_idx in combinations:
+                year, month, day = vals[y_idx], vals[m_idx], vals[d_idx]
+                if year < 100:
+                    continue
+                if not (1 <= month <= 12 and 1 <= day <= 31):
+                    continue
+                return date(year, month, day)
+
+            return None
+        except Exception:
+            return None
+
     def get_people(self):
         """Get all people from Gramps Web."""
         _LOGGER.debug("Fetching people from %s", self.url)
@@ -193,31 +251,23 @@ class GrampsWebAPI:
             
             # If birth_ref_index is valid, we have a birth date
             if birth_ref_index >= 0 and birth_ref_index < len(event_ref_list):
-                return True
+                event_handle = self._resolve_event_handle(event_ref_list[birth_ref_index])
+                if event_handle:
+                    parsed = self._fetch_event_date(event_handle)
+                    if parsed:
+                        return True
             
             # Otherwise, check if there's a birth event in the list
             for event_ref in event_ref_list:
-                event_handle = event_ref.get("ref")
-                if event_handle:
-                    try:
-                        event_data = self._get(f"events/{event_handle}")
-                        event_type = event_data.get("type", {})
-                        
-                        if isinstance(event_type, dict):
-                            type_string = event_type.get("string", "")
-                        else:
-                            type_string = str(event_type)
-                        
-                        if "birth" in type_string.lower():
-                            date_info = event_data.get("date", {})
-                            dateval = date_info.get("dateval", [])
-                            
-                            if dateval and len(dateval) >= 3:
-                                day, month, year, _ = dateval
-                                if year > 0 and month > 0 and day > 0:
-                                    return True
-                    except Exception:
-                        continue
+                event_handle = self._resolve_event_handle(event_ref)
+                if not event_handle:
+                    continue
+                try:
+                    parsed = self._fetch_event_date(event_handle)
+                    if parsed:
+                        return True
+                except Exception:
+                    continue
             
             return False
             
@@ -228,68 +278,61 @@ class GrampsWebAPI:
     def _extract_birth_date(self, person: dict):
         """Extract birth date from person data."""
         try:
-            # First check birth_ref_index
             birth_ref_index = person.get("birth_ref_index", -1)
             event_ref_list = person.get("event_ref_list", [])
-            
-            # If birth_ref_index is valid, use it
+
+            # If birth_ref_index is valid, try that reference first
             if birth_ref_index >= 0 and birth_ref_index < len(event_ref_list):
-                birth_event = event_ref_list[birth_ref_index]
-                event_handle = birth_event.get("ref")
-                
+                event_handle = self._resolve_event_handle(event_ref_list[birth_ref_index])
                 if event_handle:
-                    return self._fetch_event_date(event_handle)
-            
-            # Otherwise, search for Birth event in event_ref_list
+                    parsed = self._fetch_event_date(event_handle, require_birth=True)
+                    if parsed:
+                        return parsed
+
+            # Otherwise, scan all events for a birth event
             for event_ref in event_ref_list:
-                # Check if this might be a birth event
-                event_handle = event_ref.get("ref")
-                if event_handle:
-                    try:
-                        event_data = self._get(f"events/{event_handle}")
-                        event_type = event_data.get("type", {})
-                        
-                        # Check if this is a birth event
-                        if isinstance(event_type, dict):
-                            type_string = event_type.get("string", "")
-                        else:
-                            type_string = str(event_type)
-                        
-                        if "birth" in type_string.lower():
-                            date_info = event_data.get("date", {})
-                            dateval = date_info.get("dateval", [])
-                            
-                            if dateval and len(dateval) >= 3:
-                                day, month, year, _ = dateval
-                                if year > 0 and month > 0 and day > 0:
-                                    birth_date = date(year, month, day)
-                                    _LOGGER.debug("Found birth date: %s", birth_date)
-                                    return birth_date
-                    except Exception as event_err:
-                        _LOGGER.debug("Could not fetch event %s: %s", event_handle, event_err)
-                        continue
-            
+                event_handle = self._resolve_event_handle(event_ref)
+                if not event_handle:
+                    continue
+                try:
+                    parsed = self._fetch_event_date(event_handle, require_birth=True)
+                    if parsed:
+                        return parsed
+                except Exception as event_err:
+                    _LOGGER.debug("Could not fetch event %s: %s", event_handle, event_err)
+                    continue
+
             return None
-            
+
         except Exception as err:
             _LOGGER.debug("Could not extract birth date: %s", err)
             return None
 
-    def _fetch_event_date(self, event_handle: str):
-        """Fetch event date from event handle."""
+    def _fetch_event_date(self, event_handle: str, require_birth: bool = False):
+        """Fetch and parse an event date, optionally requiring a birth event."""
         try:
-            event_data = self._get(f"events/{event_handle}")
+            if not event_handle:
+                return None
+
+            # Clean up handle if it's a path-like string
+            handle = event_handle
+            if "/" in handle:
+                handle = handle.rstrip("/").split("/")[-1]
+
+            event_data = self._get(f"events/{handle}")
+
+            if require_birth:
+                event_type = event_data.get("type", {})
+                type_string = event_type.get("string", "") if isinstance(event_type, dict) else str(event_type)
+                if "birth" not in type_string.lower():
+                    return None
+
             date_info = event_data.get("date", {})
-            
-            # Parse the date from dateval
-            dateval = date_info.get("dateval", [])
-            if dateval and len(dateval) >= 3:
-                day, month, year, _ = dateval
-                if year > 0 and month > 0 and day > 0:
-                    birth_date = date(year, month, day)
-                    _LOGGER.debug("Parsed birth date: %s", birth_date)
-                    return birth_date
-            
+            parsed = self._parse_dateval(date_info.get("dateval", []))
+            if parsed:
+                _LOGGER.debug("Parsed event date: %s", parsed)
+                return parsed
+
             return None
         except Exception as err:
             _LOGGER.debug("Could not fetch event date: %s", err)
