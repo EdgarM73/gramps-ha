@@ -8,7 +8,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo, DeviceEntryType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -85,6 +85,7 @@ class GrampsWebNextBirthdaySensor(CoordinatorEntity, SensorEntity):
             name=self._entry.title or "Gramps HA",
             manufacturer="Gramps Web",
             model="Birthdays",
+            entry_type=DeviceEntryType.SERVICE,
             configuration_url=config_url,
         )
 
@@ -155,5 +156,6 @@ class GrampsWebAllBirthdaysSensor(CoordinatorEntity, SensorEntity):
             name=self._entry.title or "Gramps HA",
             manufacturer="Gramps Web",
             model="Birthdays",
+            entry_type=DeviceEntryType.SERVICE,
             configuration_url=config_url,
         )
