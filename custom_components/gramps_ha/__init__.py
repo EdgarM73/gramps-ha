@@ -13,6 +13,10 @@ from .const import DOMAIN, CONF_URL, CONF_USERNAME, CONF_PASSWORD, CONF_SURNAME_
 
 _LOGGER = logging.getLogger(__name__)
 
+PLATFORMS: list[Platform] = [Platform.SENSOR]
+
+SCAN_INTERVAL = timedelta(hours=6)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Gramps HA from a config entry."""
