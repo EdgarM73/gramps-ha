@@ -7,7 +7,8 @@
         "data": {
           "url": "URL",
           "username": "Benutzername (optional)",
-          "password": "Passwort (optional)"
+          "password": "Passwort (optional)",
+          "surname_filter": "Nachname-Filter (optional)"
         }
       }
     },
@@ -18,6 +19,67 @@
     },
     "abort": {
       "already_configured": "Diese Gramps Web Instanz ist bereits konfiguriert"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_birthday_1_name": {
+        "name": "Nächster Geburtstag 1 Name"
+      },
+      "next_birthday_1_age": {
+        "name": "Nächster Geburtstag 1 Alter"
+      },
+      "next_birthday_1_date": {
+        "name": "Nächster Geburtstag 1 Datum"
+      },
+      "next_birthday_2_name": {
+        "name": "Nächster Geburtstag 2 Name"
+      },
+      "next_birthday_2_age": {
+        "name": "Nächster Geburtstag 2 Alter"
+      },
+      "next_birthday_2_date": {
+        "name": "Nächster Geburtstag 2 Datum"
+      },
+      "next_birthday_3_name": {
+        "name": "Nächster Geburtstag 3 Name"
+      },
+      "next_birthday_3_age": {
+        "name": "Nächster Geburtstag 3 Alter"
+      },
+      "next_birthday_3_date": {
+        "name": "Nächster Geburtstag 3 Datum"
+      },
+      "next_birthday_4_name": {
+        "name": "Nächster Geburtstag 4 Name"
+      },
+      "next_birthday_4_age": {
+        "name": "Nächster Geburtstag 4 Alter"
+      },
+      "next_birthday_4_date": {
+        "name": "Nächster Geburtstag 4 Datum"
+      },
+      "next_birthday_5_name": {
+        "name": "Nächster Geburtstag 5 Name"
+      },
+      "next_birthday_5_age": {
+        "name": "Nächster Geburtstag 5 Alter"
+      },
+      "next_birthday_5_date": {
+        "name": "Nächster Geburtstag 5 Datum"
+      },
+      "next_birthday_6_name": {
+        "name": "Nächster Geburtstag 6 Name"
+      },
+      "next_birthday_6_age": {
+        "name": "Nächster Geburtstag 6 Alter"
+      },
+      "next_birthday_6_date": {
+        "name": "Nächster Geburtstag 6 Datum"
+      },
+      "all_upcoming_birthdays": {
+        "name": "Alle anstehenden Geburtstage"
+      }
     }
   }
 }

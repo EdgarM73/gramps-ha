@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configura Gramps HA",
+        "description": "Connettiti alla tua istanza Gramps Web",
+        "data": {
+          "url": "URL",
+          "username": "Nome utente (opzionale)",
+          "password": "Password (opzionale)",
+          "surname_filter": "Filtro per cognome (opzionale)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Connessione fallita",
+      "invalid_url": "URL non valido",
+      "unknown": "Si è verificato un errore sconosciuto"
+    },
+    "abort": {
+      "already_configured": "Questa istanza Gramps Web è già configurata"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_birthday_1_name": {
+        "name": "Prossimo compleanno 1 Nome"
+      },
+      "next_birthday_1_age": {
+        "name": "Prossimo compleanno 1 Età"
+      },
+      "next_birthday_1_date": {
+        "name": "Prossimo compleanno 1 Data"
+      },
+      "next_birthday_2_name": {
+        "name": "Prossimo compleanno 2 Nome"
+      },
+      "next_birthday_2_age": {
+        "name": "Prossimo compleanno 2 Età"
+      },
+      "next_birthday_2_date": {
+        "name": "Prossimo compleanno 2 Data"
+      },
+      "next_birthday_3_name": {
+        "name": "Prossimo compleanno 3 Nome"
+      },
+      "next_birthday_3_age": {
+        "name": "Prossimo compleanno 3 Età"
+      },
+      "next_birthday_3_date": {
+        "name": "Prossimo compleanno 3 Data"
+      },
+      "next_birthday_4_name": {
+        "name": "Prossimo compleanno 4 Nome"
+      },
+      "next_birthday_4_age": {
+        "name": "Prossimo compleanno 4 Età"
+      },
+      "next_birthday_4_date": {
+        "name": "Prossimo compleanno 4 Data"
+      },
+      "next_birthday_5_name": {
+        "name": "Prossimo compleanno 5 Nome"
+      },
+      "next_birthday_5_age": {
+        "name": "Prossimo compleanno 5 Età"
+      },
+      "next_birthday_5_date": {
+        "name": "Prossimo compleanno 5 Data"
+      },
+      "next_birthday_6_name": {
+        "name": "Prossimo compleanno 6 Nome"
+      },
+      "next_birthday_6_age": {
+        "name": "Prossimo compleanno 6 Età"
+      },
+      "next_birthday_6_date": {
+        "name": "Prossimo compleanno 6 Data"
+      },
+      "all_upcoming_birthdays": {
+        "name": "Tutti i compleanni in arrivo"
+      }
+    }
+  }
+}

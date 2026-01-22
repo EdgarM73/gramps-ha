@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurer Gramps HA",
+        "description": "Connectez-vous à votre instance Gramps Web",
+        "data": {
+          "url": "URL",
+          "username": "Nom d'utilisateur (optionnel)",
+          "password": "Mot de passe (optionnel)",
+          "surname_filter": "Filtre par nom de famille (optionnel)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion",
+      "invalid_url": "URL invalide",
+      "unknown": "Une erreur inconnue s'est produite"
+    },
+    "abort": {
+      "already_configured": "Cette instance Gramps Web est déjà configurée"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_birthday_1_name": {
+        "name": "Prochain anniversaire 1 Nom"
+      },
+      "next_birthday_1_age": {
+        "name": "Prochain anniversaire 1 Âge"
+      },
+      "next_birthday_1_date": {
+        "name": "Prochain anniversaire 1 Date"
+      },
+      "next_birthday_2_name": {
+        "name": "Prochain anniversaire 2 Nom"
+      },
+      "next_birthday_2_age": {
+        "name": "Prochain anniversaire 2 Âge"
+      },
+      "next_birthday_2_date": {
+        "name": "Prochain anniversaire 2 Date"
+      },
+      "next_birthday_3_name": {
+        "name": "Prochain anniversaire 3 Nom"
+      },
+      "next_birthday_3_age": {
+        "name": "Prochain anniversaire 3 Âge"
+      },
+      "next_birthday_3_date": {
+        "name": "Prochain anniversaire 3 Date"
+      },
+      "next_birthday_4_name": {
+        "name": "Prochain anniversaire 4 Nom"
+      },
+      "next_birthday_4_age": {
+        "name": "Prochain anniversaire 4 Âge"
+      },
+      "next_birthday_4_date": {
+        "name": "Prochain anniversaire 4 Date"
+      },
+      "next_birthday_5_name": {
+        "name": "Prochain anniversaire 5 Nom"
+      },
+      "next_birthday_5_age": {
+        "name": "Prochain anniversaire 5 Âge"
+      },
+      "next_birthday_5_date": {
+        "name": "Prochain anniversaire 5 Date"
+      },
+      "next_birthday_6_name": {
+        "name": "Prochain anniversaire 6 Nom"
+      },
+      "next_birthday_6_age": {
+        "name": "Prochain anniversaire 6 Âge"
+      },
+      "next_birthday_6_date": {
+        "name": "Prochain anniversaire 6 Date"
+      },
+      "all_upcoming_birthdays": {
+        "name": "Tous les anniversaires à venir"
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Gramps HA",
+        "description": "Connect to your Gramps Web instance",
+        "data": {
+          "url": "URL",
+          "username": "Username (optional)",
+          "password": "Password (optional)",
+          "surname_filter": "Surname Filter (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Connection failed",
+      "invalid_url": "Invalid URL",
+      "unknown": "An unknown error occurred"
+    },
+    "abort": {
+      "already_configured": "This Gramps Web instance is already configured"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_birthday_1_name": {
+        "name": "Next Birthday 1 Name"
+      },
+      "next_birthday_1_age": {
+        "name": "Next Birthday 1 Age"
+      },
+      "next_birthday_1_date": {
+        "name": "Next Birthday 1 Date"
+      },
+      "next_birthday_2_name": {
+        "name": "Next Birthday 2 Name"
+      },
+      "next_birthday_2_age": {
+        "name": "Next Birthday 2 Age"
+      },
+      "next_birthday_2_date": {
+        "name": "Next Birthday 2 Date"
+      },
+      "next_birthday_3_name": {
+        "name": "Next Birthday 3 Name"
+      },
+      "next_birthday_3_age": {
+        "name": "Next Birthday 3 Age"
+      },
+      "next_birthday_3_date": {
+        "name": "Next Birthday 3 Date"
+      },
+      "next_birthday_4_name": {
+        "name": "Next Birthday 4 Name"
+      },
+      "next_birthday_4_age": {
+        "name": "Next Birthday 4 Age"
+      },
+      "next_birthday_4_date": {
+        "name": "Next Birthday 4 Date"
+      },
+      "next_birthday_5_name": {
+        "name": "Next Birthday 5 Name"
+      },
+      "next_birthday_5_age": {
+        "name": "Next Birthday 5 Age"
+      },
+      "next_birthday_5_date": {
+        "name": "Next Birthday 5 Date"
+      },
+      "next_birthday_6_name": {
+        "name": "Next Birthday 6 Name"
+      },
+      "next_birthday_6_age": {
+        "name": "Next Birthday 6 Age"
+      },
+      "next_birthday_6_date": {
+        "name": "Next Birthday 6 Date"
+      },
+      "all_upcoming_birthdays": {
+        "name": "All Upcoming Birthdays"
+      }
+    }
+  }
+}

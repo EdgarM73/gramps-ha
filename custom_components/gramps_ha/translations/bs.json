@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Postavi Gramps HA",
+        "description": "Povežite se sa vašom Gramps Web instancom",
+        "data": {
+          "url": "URL",
+          "username": "Korisničko ime (opcionalno)",
+          "password": "Lozinka (opcionalno)",
+          "surname_filter": "Filter po prezimenu (opcionalno)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Povezivanje nije uspjelo",
+      "invalid_url": "Neispravan URL",
+      "unknown": "Došlo je do nepoznate greške"
+    },
+    "abort": {
+      "already_configured": "Ova Gramps Web instanca je već konfigurirana"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_birthday_1_name": {
+        "name": "Sljedeći rođendan 1 Ime"
+      },
+      "next_birthday_1_age": {
+        "name": "Sljedeći rođendan 1 Dob"
+      },
+      "next_birthday_1_date": {
+        "name": "Sljedeći rođendan 1 Datum"
+      },
+      "next_birthday_2_name": {
+        "name": "Sljedeći rođendan 2 Ime"
+      },
+      "next_birthday_2_age": {
+        "name": "Sljedeći rođendan 2 Dob"
+      },
+      "next_birthday_2_date": {
+        "name": "Sljedeći rođendan 2 Datum"
+      },
+      "next_birthday_3_name": {
+        "name": "Sljedeći rođendan 3 Ime"
+      },
+      "next_birthday_3_age": {
+        "name": "Sljedeći rođendan 3 Dob"
+      },
+      "next_birthday_3_date": {
+        "name": "Sljedeći rođendan 3 Datum"
+      },
+      "next_birthday_4_name": {
+        "name": "Sljedeći rođendan 4 Ime"
+      },
+      "next_birthday_4_age": {
+        "name": "Sljedeći rođendan 4 Dob"
+      },
+      "next_birthday_4_date": {
+        "name": "Sljedeći rođendan 4 Datum"
+      },
+      "next_birthday_5_name": {
+        "name": "Sljedeći rođendan 5 Ime"
+      },
+      "next_birthday_5_age": {
+        "name": "Sljedeći rođendan 5 Dob"
+      },
+      "next_birthday_5_date": {
+        "name": "Sljedeći rođendan 5 Datum"
+      },
+      "next_birthday_6_name": {
+        "name": "Sljedeći rođendan 6 Ime"
+      },
+      "next_birthday_6_age": {
+        "name": "Sljedeći rođendan 6 Dob"
+      },
+      "next_birthday_6_date": {
+        "name": "Sljedeći rođendan 6 Datum"
+      },
+      "all_upcoming_birthdays": {
+        "name": "Svi nadolazeći rođendani"
+      }
+    }
+  }
+}
