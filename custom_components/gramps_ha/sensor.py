@@ -8,6 +8,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -16,6 +17,7 @@ from .const import (
     ATTR_BIRTH_DATE,
     ATTR_AGE,
     ATTR_DAYS_UNTIL,
+    CONF_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,6 +50,7 @@ class GrampsWebNextBirthdaySensor(CoordinatorEntity, SensorEntity):
         self._index = index
         self._attr_name = f"Next Birthday {index + 1}"
         self._attr_unique_id = f"{entry.entry_id}_birthday_{index}"
+        self._entry = entry
 
     @property
     def native_value(self):
@@ -72,6 +75,18 @@ class GrampsWebNextBirthdaySensor(CoordinatorEntity, SensorEntity):
                 return name
         
         return name
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info for grouping in HA UI."""
+        config_url = self._entry.data.get(CONF_URL)
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.entry_id)},
+            name=self._entry.title or "Gramps HA",
+            manufacturer="Gramps Web",
+            model="Birthdays",
+            configuration_url=config_url,
+        )
 
     @property
     def extra_state_attributes(self):
@@ -106,6 +121,7 @@ class GrampsWebAllBirthdaysSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._attr_name = "All Upcoming Birthdays"
         self._attr_unique_id = f"{entry.entry_id}_all_birthdays"
+        self._entry = entry
 
     @property
     def native_value(self):
@@ -129,3 +145,15 @@ class GrampsWebAllBirthdaysSensor(CoordinatorEntity, SensorEntity):
     def icon(self):
         """Return the icon to use in the frontend."""
         return "mdi:calendar-multiple"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info for grouping in HA UI."""
+        config_url = self._entry.data.get(CONF_URL)
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.entry_id)},
+            name=self._entry.title or "Gramps HA",
+            manufacturer="Gramps Web",
+            model="Birthdays",
+            configuration_url=config_url,
+        )
