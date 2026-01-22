@@ -6,7 +6,7 @@ from pathlib import Path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceRegistry, DeviceEntryType, DeviceInfo
+from homeassistant.helpers.device_registry import async_get as async_get_device_registry, DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN, CONF_URL, CONF_USERNAME, CONF_PASSWORD, CONF_SURNAME_FILTER
@@ -33,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug("Surname filter: %s", surname_filter if surname_filter else "None")
         
         # Register device in device registry
-        device_registry = DeviceRegistry.async_get(hass)
+        device_registry = async_get_device_registry(hass)
         device = device_registry.async_get_or_create(
             config_entry_id=entry.entry_id,
             identifiers={(DOMAIN, entry.entry_id)},
