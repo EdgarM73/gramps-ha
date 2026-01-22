@@ -64,14 +64,15 @@ class GrampsWebNextBirthdaySensor(CoordinatorEntity, SensorEntity):
         birthday = self.coordinator.data[self._index]
         name = birthday.get("person_name", "Unknown")
         next_birthday = birthday.get("next_birthday")
-        ordinal = self._index + 1  # 1st, 2nd, 3rd, 4th, 5th birthday
+        age = birthday.get("age")
         
         if next_birthday:
             try:
                 # Parse ISO date and format as DD.MM.YYYY
                 dt = datetime.fromisoformat(next_birthday)
                 formatted_date = dt.strftime("%d.%m.%Y")
-                return f"{name} - {formatted_date} ({ordinal})"
+                age_info = f" ({age} Jahre)" if age else ""
+                return f"{name} - {formatted_date}{age_info}"
             except Exception:
                 return name
         
