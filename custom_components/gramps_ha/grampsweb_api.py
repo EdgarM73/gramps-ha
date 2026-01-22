@@ -128,6 +128,34 @@ class GrampsWebAPI:
         except Exception:
             return None
 
+    def _ensure_person_events(self, person: dict) -> dict:
+        """Ensure a person dict has event_ref_list by refetching details if needed."""
+        try:
+            event_ref_list = person.get("event_ref_list", []) or []
+            birth_ref_index = person.get("birth_ref_index", -1)
+
+            # If we already have events and a birth ref index, keep as is
+            if event_ref_list:
+                return person
+
+            handle = person.get("handle")
+            if not handle:
+                return person
+
+            try:
+                detailed = self._get(f"people/{handle}")
+                # Only update the minimal fields we care about
+                if detailed:
+                    person["event_ref_list"] = detailed.get("event_ref_list", event_ref_list)
+                    person["birth_ref_index"] = detailed.get("birth_ref_index", birth_ref_index)
+                    person["death_ref_index"] = detailed.get("death_ref_index", person.get("death_ref_index", -1))
+            except Exception as err:
+                _LOGGER.debug("Could not fetch detailed person %s: %s", handle, err)
+
+            return person
+        except Exception:
+            return person
+
     def get_people(self):
         """Get all people from Gramps Web."""
         _LOGGER.debug("Fetching people from %s", self.url)
@@ -161,6 +189,7 @@ class GrampsWebAPI:
             with_events = 0
             sampled_event_type = None
             for person in all_people:
+                person = self._ensure_person_events(person)
                 event_ref_list = person.get("event_ref_list", []) or []
                 if event_ref_list:
                     with_events += 1
@@ -182,10 +211,11 @@ class GrampsWebAPI:
                 _LOGGER.info("Diagnostics sample event: %s", sampled_event_type)
             
             # Filter to only include people with a birth date
-            people_data = [
-                person for person in all_people 
-                if self._has_birth_date(person)
-            ]
+            people_data = []
+            for person in all_people:
+                person = self._ensure_person_events(person)
+                if self._has_birth_date(person):
+                    people_data.append(person)
             _LOGGER.info("Filtered to %s people with birth dates (from %s total)", 
                         len(people_data), len(all_people))
             
@@ -270,6 +300,7 @@ class GrampsWebAPI:
     def _has_birth_date(self, person: dict) -> bool:
         """Check if person has a birth date set."""
         try:
+            person = self._ensure_person_events(person)
             # Check birth_ref_index
             birth_ref_index = person.get("birth_ref_index", -1)
             event_ref_list = person.get("event_ref_list", [])
@@ -303,6 +334,7 @@ class GrampsWebAPI:
     def _extract_birth_date(self, person: dict):
         """Extract birth date from person data."""
         try:
+            person = self._ensure_person_events(person)
             birth_ref_index = person.get("birth_ref_index", -1)
             event_ref_list = person.get("event_ref_list", [])
 
