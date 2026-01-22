@@ -1,6 +1,11 @@
 # Gramps HA Integration für Home Assistant
 
 Diese Custom Integration ermöglicht es, Daten von einer Gramps Web Instanz in Home Assistant zu integrieren und anstehende Geburtstage auf dem Dashboard anzuzeigen.
+Ich kam darauf, da ich grampsweb bisher zwar nutze, aber erst jetzt gesehen habe, dass es grampsweb auch als addon gibt : https://github.com/alexbelgium/hassio-addons/tree/master , danke dafür.
+
+und wenn man schon einen Stammbaum hat, kann man auch die Familien Geburtstage anzeigen.
+
+!Achtung !  Der größte Teil dieser Integration ist KI generiert, sonst hätte ich aktuell gar nicht die Zeit gehabt.
 
 ## Features
 
