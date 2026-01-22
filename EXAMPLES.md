@@ -2,6 +2,89 @@
 
 ## Lovelace Dashboard Beispiele
 
+### Grid-Layout: 6 Geburtstage (Name/Alter/Datum getrennt)
+
+```yaml
+type: grid
+title: Nächste 6 Geburtstage
+columns: 2
+square: false
+cards:
+  - type: entities
+    title: 1
+    entities:
+      - entity: sensor.next_birthday_1_name
+        name: Name
+      - entity: sensor.next_birthday_1_age
+        name: Alter
+      - entity: sensor.next_birthday_1_date
+        name: Datum
+  - type: entities
+    title: 2
+    entities:
+      - entity: sensor.next_birthday_2_name
+        name: Name
+      - entity: sensor.next_birthday_2_age
+        name: Alter
+      - entity: sensor.next_birthday_2_date
+        name: Datum
+  - type: entities
+    title: 3
+    entities:
+      - entity: sensor.next_birthday_3_name
+        name: Name
+      - entity: sensor.next_birthday_3_age
+        name: Alter
+      - entity: sensor.next_birthday_3_date
+        name: Datum
+  - type: entities
+    title: 4
+    entities:
+      - entity: sensor.next_birthday_4_name
+        name: Name
+      - entity: sensor.next_birthday_4_age
+        name: Alter
+      - entity: sensor.next_birthday_4_date
+        name: Datum
+  - type: entities
+    title: 5
+    entities:
+      - entity: sensor.next_birthday_5_name
+        name: Name
+      - entity: sensor.next_birthday_5_age
+        name: Alter
+      - entity: sensor.next_birthday_5_date
+        name: Datum
+  - type: entities
+    title: 6
+    entities:
+      - entity: sensor.next_birthday_6_name
+        name: Name
+      - entity: sensor.next_birthday_6_age
+        name: Alter
+      - entity: sensor.next_birthday_6_date
+        name: Datum
+```
+
+### Markdown-Liste: kompakt mit Name/Alter/Datum
+
+```yaml
+type: markdown
+title: Geburtstage (kommend)
+content: |
+  {% set items = [
+    (states('sensor.next_birthday_1_name'), states('sensor.next_birthday_1_age'), states('sensor.next_birthday_1_date')),
+    (states('sensor.next_birthday_2_name'), states('sensor.next_birthday_2_age'), states('sensor.next_birthday_2_date')),
+    (states('sensor.next_birthday_3_name'), states('sensor.next_birthday_3_age'), states('sensor.next_birthday_3_date')),
+    (states('sensor.next_birthday_4_name'), states('sensor.next_birthday_4_age'), states('sensor.next_birthday_4_date')),
+    (states('sensor.next_birthday_5_name'), states('sensor.next_birthday_5_age'), states('sensor.next_birthday_5_date')),
+    (states('sensor.next_birthday_6_name'), states('sensor.next_birthday_6_age'), states('sensor.next_birthday_6_date'))
+  ] %}
+  {% for n, a, d in items if n not in ['unknown','unavailable',''] %}
+  - **{{ n }}** — {{ d }}{% if a not in ['unknown','unavailable',''] %} ({{ a }} Jahre){% endif %}
+  {% endfor %}
+```
+
 ### 1. Einfache Liste mit Entities Card
 
 ```yaml
