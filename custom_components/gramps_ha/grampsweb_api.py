@@ -155,6 +155,31 @@ class GrampsWebAPI:
             if not all_people:
                 _LOGGER.warning("No people data returned from Gramps Web")
                 return []
+
+            # Diagnostics: check how many have event lists or valid birth refs
+            birth_ref_valid = 0
+            with_events = 0
+            sampled_event_type = None
+            for person in all_people:
+                event_ref_list = person.get("event_ref_list", []) or []
+                if event_ref_list:
+                    with_events += 1
+                    if sampled_event_type is None:
+                        handle = self._resolve_event_handle(event_ref_list[0])
+                        if handle:
+                            try:
+                                evt = self._get(f"events/{handle}")
+                                etype = evt.get("type", {})
+                                type_string = etype.get("string", "") if isinstance(etype, dict) else str(etype)
+                                sampled_event_type = f"handle={handle}, type={type_string}"
+                            except Exception as diag_err:
+                                sampled_event_type = f"handle={handle}, error={diag_err}"
+                bri = person.get("birth_ref_index", -1)
+                if bri >= 0 and bri < len(event_ref_list):
+                    birth_ref_valid += 1
+            _LOGGER.info("Diagnostics: %s/%s have event_ref_list, %s/%s have valid birth_ref_index", with_events, len(all_people), birth_ref_valid, len(all_people))
+            if sampled_event_type:
+                _LOGGER.info("Diagnostics sample event: %s", sampled_event_type)
             
             # Filter to only include people with a birth date
             people_data = [
