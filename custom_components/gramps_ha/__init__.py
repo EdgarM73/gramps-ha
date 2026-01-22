@@ -6,6 +6,7 @@ from pathlib import Path
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceRegistry, DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN, CONF_URL, CONF_USERNAME, CONF_PASSWORD, CONF_SURNAME_FILTER
@@ -62,6 +63,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug("Gramps Web URL: %s", url)
         _LOGGER.debug("Username provided: %s", bool(username))
         _LOGGER.debug("Surname filter: %s", surname_filter if surname_filter else "None")
+        
+        # Register device in device registry
+        device_registry = DeviceRegistry.async_get(hass)
+        device = device_registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=entry.title or "Gramps Web",
+            manufacturer="Gramps Web",
+            model="Birthday Tracker",
+            entry_type=DeviceEntryType.SERVICE,
+            configuration_url=url,
+        )
+        _LOGGER.debug("Device registered: %s", device.name)
         
         api = GrampsWebAPI(
             url=url,
