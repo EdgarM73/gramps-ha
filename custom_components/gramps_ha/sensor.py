@@ -59,7 +59,19 @@ class GrampsWebNextBirthdaySensor(CoordinatorEntity, SensorEntity):
             return None
         
         birthday = self.coordinator.data[self._index]
-        return birthday.get("person_name", "Unknown")
+        name = birthday.get("person_name", "Unknown")
+        next_birthday = birthday.get("next_birthday")
+        
+        if next_birthday:
+            try:
+                # Parse ISO date and format as DD.MM.YYYY
+                dt = datetime.fromisoformat(next_birthday)
+                formatted_date = dt.strftime("%d.%m.%Y")
+                return f"{name} - {formatted_date}"
+            except Exception:
+                return name
+        
+        return name
 
     @property
     def extra_state_attributes(self):
